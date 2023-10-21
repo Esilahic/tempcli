@@ -50,7 +50,7 @@ func main() {
 	if api == "" {
 		log.Fatal("API key not found in environment variables")
 	}
-
+	fmt.Printf("this is %T\n", os.Getenv("KEY"))
 	_, lku := os.LookupEnv("KEY")
 	fmt.Println("apikey exist?:", lku)
 
@@ -58,19 +58,22 @@ func main() {
 		q = os.Args[1]
 	}
 
-	res, err := http.Get(
+	resp, err := http.Get(
 		"http://api.weatherapi.com/v1/forecast.json?key=" + api + "&q=" + q + "&days=1&aqi=no&alerts=no",
 	)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer res.Body.Close()
 
-	if res.StatusCode != 200 {
+	defer resp.Body.Close()
+
+	fmt.Println(resp.StatusCode)
+
+	if resp.StatusCode != 200 {
 		log.Fatal("API unavailable")
 	}
 
-	output, err := io.ReadAll(res.Body)
+	output, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
