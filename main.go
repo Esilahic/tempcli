@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -33,16 +34,23 @@ type Weather struct {
 				} `json:"condition"`
 				ChanceOfRain float64 `json:"chance_of_rain"`
 			} `json:"hour"`
-		} `json:"forcastday"`
-	} `json:"forcast"`
+		} `json:"forecastday"`
+	} `json:"forecast"`
 }
 
 func main() {
 
-	godotenv.Load()
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	q := "Salt Lake City"
 	api := os.Getenv("KEY")
+	if api == "" {
+		log.Fatal("API key not found in environment variables")
+	}
+
 	_, lku := os.LookupEnv("KEY")
 	fmt.Println("apikey exist?:", lku)
 
@@ -54,23 +62,23 @@ func main() {
 		"http://api.weatherapi.com/v1/forecast.json?key=" + api + "&q=" + q + "&days=1&aqi=no&alerts=no",
 	)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	defer res.Body.Close()
 
-	if res.StatusCode != 400 {
-		panic("API unavailable")
+	if res.StatusCode != 200 {
+		log.Fatal("API unavailable")
 	}
 
 	output, err := io.ReadAll(res.Body)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	var weather Weather
 	err = json.Unmarshal(output, &weather)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	location, current, hours := weather.Location, weather.Current, weather.Forecast.ForecastDay[0].Hour
