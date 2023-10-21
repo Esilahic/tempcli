@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/faith/color"
+	"github.com/fatih/color"
 	"github.com/joho/godotenv"
 )
 
